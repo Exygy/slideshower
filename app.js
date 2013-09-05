@@ -3,9 +3,8 @@
  * Module dependencies.
  */
 
-var express = require('express');
+var express = require('express.io');
 var routes = require('./routes');
-var user = require('./routes/user');
 var live_update = require('./routes/live_update');
 var http = require('http');
 var path = require('path');
@@ -13,6 +12,7 @@ var path = require('path');
 // var db = redis.createClient();
 
 var app = express();
+app.http().io();
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -30,37 +30,28 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-
-app.get('/', routes.index);
-app.get('/users', user.list);
-app.get('/live_update', live_update.subscribe);
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+// for dumb ol' heroku
+app.io.configure(function() {
+  app.io.set("transports", ["xhr-polling"]); 
+  app.io.set("polling duration", 10); 
 });
 
+// ------- ROUTES -------
+app.get('/', routes.index);
+app.get('/live_update', live_update.subscribe);
 
+app.get('/yeah', function(req, res) {
+  app.io.broadcast('beep', {f: 'yes'});
+  res.send('yeah.')
+});
 
-
-
-
-
-// app.use(function(req, res, next){
-//   var ua = req.headers['user-agent'];
-//   db.zadd('online', Date.now(), ua, next);
+// app.io.route('beeper', function(req) {
 // });
 
-// app.use(function(req, res, next){
-//   var min = 60 * 1000;
-//   var ago = Date.now() - min;
-//   db.zrevrangebyscore('online', '+inf', ago, function(err, users){
-//     if (err) return next(err);
-//     req.online = users;
-//     next();
-//   });
-// });
 
-// app.get('/cnt', function(req, res){
-//   var cnt = req.online ? req.online.length : 0;
-//   res.send(cnt + ' users online');
-// });
+
+// -------
+// LISTEN!
+app.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
