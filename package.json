@@ -1,0 +1,26 @@
+{
+  "name": "slideshower",
+  "version": "0.0.1",
+  "description": "Make it rain with slides.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kaptron/slideshower.git"
+  },
+  "keywords": [
+    "instagram"
+  ],
+  "author": "kaptron",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaptron/slideshower/issues"
+  },
+  "dependencies": {
+    "express": "~3.3.8",
+    "jade": "*",
+  }
+}
