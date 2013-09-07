@@ -1,8 +1,26 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin: 0;
+  border: 0;
+  padding: 0;
 }
 
-a {
-  color: #00B7FF;
+img { border: 0;}
+
+
+.slider-wrapper {
+  float: left; 
+  width: 60%;
+}
+
+#info {
+  position: relative;
+  float: right;
+  width: 30%;
+  margin-right: 10px;
+}
+
+.info {
+  display: none;
+  position: absolute;
+  top: 0;
 }
