@@ -44,7 +44,7 @@ if ('development' == app.get('env')) {
   // Instagram.set('client_secret', IG.client_secret);
   Instagram.set('access_token', IG.access_token);
 } else if(process.env.IG_ACCESS_TOKEN) {
-  Instagram.set('access_token', IG_ACCESS_TOKEN);
+  Instagram.set('access_token', process.env.IG_ACCESS_TOKEN);
 }
 
 // for dumb ol' heroku
