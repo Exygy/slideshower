@@ -53,6 +53,7 @@ app.io.configure(function() {
   app.io.set("polling duration", 10); 
 });
 
+//------------------------
 // ------- ROUTES -------
 app.get('/', routes.index);
 
@@ -66,24 +67,14 @@ app.get('/live_subscribe', function(req, res) {
 
 // get live updates from Instagram!!! 
 app.post('/live_update', function(req, res) {
+  console.log(' -- hitting live update -- ')
   if (!req.headers['x-hub-signature']) {
+    console.log(' nooo! ')
     res.send('nooooo!');
     return;
   }
   if (req.body && req.body.length) {
-    // async.each(req.body, function(img, callback) {
-    //   Instagram.media.info({
-    //     media_id: img.object_id, 
-    //     complete: function(img) {
-    //       saveInstagramPhoto(img, function(photo) {
-    //         app.io.broadcast('new_photo', photo);
-    //       });
-    //     }
-    //   });
-
-
-    //   callback(null);
-    // })
+    console.log(' -- req.body found, length = ' + req.body.length)
 
     // load the latest however many (+1 just because why not)
     loadInstagrams({
@@ -98,13 +89,9 @@ app.post('/live_update', function(req, res) {
     console.log('ERR!!!');
   }
 
-
-
   // Photo.findOne({}).sort('created_time').exec(function(err, photo) {
   //   app.io.broadcast('new_photo', photo);
   // });
-
-
   res.send('thx doodz.')
 });
 
@@ -120,7 +107,9 @@ app.get('/load_into_db', function(req, res){
 // });
 
 
+
 //------------------------
+//-- Helper funcs 
 function loadInstagrams(passed) {
   var opts = { 
     name: 'kenzanddave',
@@ -186,23 +175,20 @@ function saveInstagramPhoto(img, callback) {
           else console.log('saved. ' + photo.instagram_id);
         });
 
+        //TODO: only do this for new ones 
+        if (photo && callback) {
+          callback(photo);
+        }
       }
 
-      if (photo && callback) {
-        callback(photo);
-      }
 
     } 
   });
 
 }
 
-// -------
-// -------
-// -------
-// -------
-// -------
-// LISTEN!
+// -----------------------
+// ------- LISTEN! -------
 app.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
@@ -215,30 +201,30 @@ app.listen(app.get('port'), function(){
 
 
 
+// -- test 
+// app.get('/test', function(req, res) {
+//   var request = require('request');
+//   var ig_json = [
+//     {
+//         "subscription_id": "1",
+//         "object": "user",
+//         "object_id": "490213874736622185_11302361",
+//         "changed_aspect": "media",
+//         "time": 1297286541
+//     }
+//   ];
 
-app.get('/test', function(req, res) {
-  var request = require('request');
-  var ig_json = [
-    {
-        "subscription_id": "1",
-        "object": "user",
-        "object_id": "490213874736622185_11302361",
-        "changed_aspect": "media",
-        "time": 1297286541
-    }
-  ];
+//   request.post({
+//     url: 'http://localhost:3000/live_update',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'X-Hub-Signature': 'deepdoop'
+//     },
+//     body: JSON.stringify(ig_json)
+//   }, function(error, response, body){
+//     //
+//     console.log(body);
+//   });
 
-  request.post({
-    url: 'http://localhost:3000/live_update',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Hub-Signature': 'deepdoop'
-    },
-    body: JSON.stringify(ig_json)
-  }, function(error, response, body){
-    //
-    console.log(body);
-  });
-
-  res.send('done testing.');
-});
+//   res.send('done testing.');
+// });
