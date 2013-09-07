@@ -4,11 +4,7 @@
  */
 
 
-var IG = require('./config.js');
 Instagram = require('instagram-node-lib');
-// Instagram.set('client_id', IG.client_id);
-// Instagram.set('client_secret', IG.client_secret);
-Instagram.set('access_token', IG.access_token);
 
 // --- mongodb
 require( './db' );
@@ -43,6 +39,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
+  var IG = require('./instagram_config.json');
+  // Instagram.set('client_id', IG.client_id);
+  // Instagram.set('client_secret', IG.client_secret);
+  Instagram.set('access_token', IG.access_token);
+} else if(process.env.IG_ACCESS_TOKEN) {
+  Instagram.set('access_token', IG_ACCESS_TOKEN);
 }
 
 // for dumb ol' heroku
