@@ -155,7 +155,7 @@ function loadInstagrams(passed) {
     opts.count = passed.count
   }
   if (passed && passed.max_tag_id) {
-    opts.max_tag_id = max_tag_id;
+    opts.max_tag_id = passed.max_tag_id;
   }
 
   // now hit the Instagram API with our opts...
