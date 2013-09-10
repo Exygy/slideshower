@@ -41,7 +41,7 @@ var Slider = {
         );
         // load new .current
         $('#slider .current').css('opacity', 0).html(slide_html)
-        $('.moment').text( moment.unix(parseInt($('.moment').data('timestamp'))).fromNow() );
+        $('#slider .current .moment').text( moment.unix(parseInt($('.moment').data('timestamp'))).fromNow() );
         $('#slider .current').transition({
             opacity: 1,
             duration: self.transitionTime * 1,
