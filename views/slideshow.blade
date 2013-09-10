@@ -1,0 +1,14 @@
+include 'layout.blade'
+
+replace block content
+  #slider
+    .current.slide
+    .old.slide
+
+  #new
+    i.icon-camera-retro.icon-2x
+    span.text New photo on its way! 
+
+  script(type='text/javascript')
+    != "Slider.slides = "+JSON.stringify(photos)+";"
+

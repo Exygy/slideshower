@@ -14,6 +14,7 @@ var Photo = mongoose.model('Photo');
 // ---
 
 var express = require('express.io');
+var blade = require('blade');
 var routes = require('./routes');
 var http = require('http');
 var https = require('https');
@@ -27,8 +28,10 @@ app.http().io();
 
 // all environments
 app.set('port', process.env.PORT || 3000);
+app.use(blade.middleware(__dirname + '/views') ); //for client-side templates
 app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
+app.set('view engine', 'blade');
+
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
@@ -99,7 +102,7 @@ app.post('/live_update', function(req, res) {
 app.get('/load_into_db', function(req, res){
   // Instagram.tags.info({ name: 'kenzanddave' });
 
-  loadInstagrams();
+  loadInstagrams({count: 15});
   res.send('!!!')
 });
 
@@ -175,10 +178,10 @@ function saveInstagramPhoto(img, callback) {
           else console.log('saved. ' + photo.instagram_id);
         });
 
-        //TODO: only do this for new ones 
-        if (photo && callback) {
-          callback(photo);
-        }
+      }
+      //TODO: only does this for new ones!
+      if (photo && callback) {
+        callback(photo);
       }
 
 
@@ -202,29 +205,29 @@ app.listen(app.get('port'), function(){
 
 
 // -- test 
-// app.get('/test', function(req, res) {
-//   var request = require('request');
-//   var ig_json = [
-//     {
-//         "subscription_id": "1",
-//         "object": "user",
-//         "object_id": "490213874736622185_11302361",
-//         "changed_aspect": "media",
-//         "time": 1297286541
-//     }
-//   ];
+app.get('/test', function(req, res) {
+  var request = require('request');
+  var ig_json = [
+    {
+        "subscription_id": "1",
+        "object": "user",
+        "object_id": "490213874736622185_11302361",
+        "changed_aspect": "media",
+        "time": 1297286541
+    }
+  ];
 
-//   request.post({
-//     url: 'http://localhost:3000/live_update',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       'X-Hub-Signature': 'deepdoop'
-//     },
-//     body: JSON.stringify(ig_json)
-//   }, function(error, response, body){
-//     //
-//     console.log(body);
-//   });
+  request.post({
+    url: 'http://localhost:3000/live_update',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Hub-Signature': 'deepdoop'
+    },
+    body: JSON.stringify(ig_json)
+  }, function(error, response, body){
+    //
+    console.log(body);
+  });
 
-//   res.send('done testing.');
-// });
+  res.send('done testing.');
+});

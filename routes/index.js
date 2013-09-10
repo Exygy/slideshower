@@ -7,7 +7,7 @@ var Photo = mongoose.model('Photo');
 // };
 
 exports.index = function(req, res) {
-  Photo.find({}).limit(10).sort('-created_time').exec(function(err, photos) {
+  Photo.find({}).limit(4).sort('-created_time').exec(function(err, photos) {
     res.render('slideshow', {
       photos: photos
     });    
