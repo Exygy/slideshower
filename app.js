@@ -102,7 +102,7 @@ app.post('/live_update', function(req, res) {
 app.get('/load_into_db', function(req, res){
   // Instagram.tags.info({ name: 'kenzanddave' });
 
-  loadInstagrams({count: 15});
+  loadInstagrams();
   res.send('!!!')
 });
 
