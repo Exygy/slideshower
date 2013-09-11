@@ -1,6 +1,6 @@
 {
   "name": "slideshower",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Make it rain with slides.",
   "main": "index.js",
   "scripts": {

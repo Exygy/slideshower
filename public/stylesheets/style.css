@@ -6,6 +6,8 @@ body {
   color: #fff;
   font-family: 'Helvetica Neue', Helvetica, sans-serif;
   /*width: 1280px;*/
+
+  overflow: hidden;;
 }
 
 img { border: 0;}
@@ -33,7 +35,7 @@ img { border: 0;}
 
 /* .slide */ 
 .photo {
-  border-radius: 10px 0 0 10px;
+  border-radius: 10px; /* 0 0 10px;*/
   float: left;
   width: 60%;
 }
@@ -50,6 +52,7 @@ img { border: 0;}
 
 .username {
   color: #79BAED;
+  color: #F0E18D;
   font-size: 48px;
   line-height: 50px;
 }
@@ -87,4 +90,9 @@ img { border: 0;}
   margin-left: 10px;
   position: relative;
   top: -5px;
+}
+
+
+span.knd {
+  color: #F0E18D;
 }

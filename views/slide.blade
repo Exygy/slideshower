@@ -6,5 +6,4 @@ img.photo(src=url)
     = user.username
   .moment(data-timestamp=created_time)
   .caption
-    = caption
-
+    != caption.replace('#kenzanddave', '<span class="knd">#kenzanddave</span>');

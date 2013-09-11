@@ -3,16 +3,18 @@ var io = io.connect()
 io.on('new_photo', function(photo){
   console.log('WE GOTS A NEW PHOTO!');
   console.log(photo);
+  photo.viewCount = 0; 
   Slider.add(photo);
 });
 
 
 var Slider = {
   slides: [],
-  currentSlide: 1,
+  originalLength: 0,
+  current_id: null,
   queue: [],
   transitionTime: 1700,
-  delayTime: 10000,
+  delayTime: 11000,
   animating: false,
   timer: null,
 
@@ -25,9 +27,10 @@ var Slider = {
     if (this.animating) return false; 
     this.animating = true; 
     blade.Runtime.loadTemplate("slide.blade", function(err, tmpl) {
-      tmpl(self.current(), function(err, slide_html) {
-
-        var rand = 30 + Math.floor(Math.random()*70);
+      var currentSlide = self.current();
+      currentSlide.viewCount++;
+      tmpl(currentSlide, function(err, slide_html) {
+        var rand = 30 + Math.floor(Math.random()*60);
         var sign = (Math.random() < 0.5) ? '-' : '+';
         // move .current to .old
         $('#slider .old').html($('#slider .current').html()).css({boxShadow: '0 0 0', opacity: 1, rotate: 0, scale: 1, rotate3d: '0,0,0,0'}).transition({
@@ -44,7 +47,7 @@ var Slider = {
         $('#slider .current .moment').text( moment.unix(parseInt($('.moment').data('timestamp'))).fromNow() );
         $('#slider .current').transition({
             opacity: 1,
-            duration: self.transitionTime * 1,
+            duration: self.transitionTime * 1.2,
             easing: 'easeInQuad'
           },
           function() {
@@ -54,24 +57,32 @@ var Slider = {
       });
     });
 
-    return this.currentSlide; 
+    // return this.current_id; 
 
   },
 
   current: function() {
-    //currentSlide is a countable number (1,2,3) so we -1
-    return this.slides[this.currentSlide-1];
+    //current_id is an _id
+    return _.findWhere(this.slides, {_id: this.current_id});
   },
   increment: function() {
-    if (pos = this.queue.shift()) {
+    if (id = this.queue.shift()) {
       this.clearAlert();
-      this.currentSlide = pos;
-    } else {
-      //TODO: could also go to random?? 
-      this.currentSlide++; 
-    }
-    if (this.currentSlide > this.slides.length) {
-      this.currentSlide = 1; 
+      this.current_id = id;
+    } else if (this.slides.length > 1) {
+      // randomize but also sort by least viewed 
+      // TODO: do we want to "highlight" the new additions? 
+      this.slides = _.sortBy(_.shuffle(this.slides), 'viewCount');
+
+      // just another little check in case we're about to see the same slide again 
+      var i = 0; 
+      while (i < 10 && this.slides[0]._id == this.current_id) {
+        this.slides = _.shuffle(this.slides);
+        // also just in case we get stuck for some reason 
+        i++; 
+      }
+      this.current_id = this.slides[0]._id;
+      // console.log(this.current_id);
     }
 
   },
@@ -85,13 +96,23 @@ var Slider = {
     if (_.findWhere(this.slides, {instagram_id: photo.instagram_id})) {
       return false; 
     }
+    // preload 
+    $('<img/>')[0].src = photo.url;
+    $('<img/>')[0].src = photo.user.profile_picture;
+
     this.slides.push(photo);
-    var pos = this.slides.length; 
     // queue him up
-    this.enqueue(pos);
+    this.enqueue(photo._id);
     this.alert()
   },
-
+  preload: function() {
+    // first preload all images 
+    // http://stackoverflow.com/questions/476679/preloading-images-with-jquery
+    $(this.slides).each(function(){
+      $('<img/>')[0].src = this.url;
+      $('<img/>')[0].src = this.user.profile_picture;
+    });
+  },
   start: function() {
     this.next();
     var self = this; 
@@ -103,65 +124,31 @@ var Slider = {
 
 
   alert: function(clear) {
-    $('#new').show(0).stop().css({right: -500, opacity: 0}).transit({right: -100, opacity: 1, duration: 770, easing: 'easeOutBack'})
+    $('#new').show(0).stop().css({right: -500, opacity: 0}).transit({
+      right: -100, opacity: 1, duration: 770, easing: 'easeOutBack'
+    });
   },
   clearAlert: function() {
-    $('#new').fadeOut(500);     
+    $('#new').transit({
+      opacity: 0, 
+      duration: this.transitionTime * 1.33, 
+      easing: 'easeInSine'
+    });
   }
 
 }
 
 
 $(function() {
+  Slider.preload();
+  _.each(Slider.slides, function(slide){ slide.viewCount = 0; });
   Slider.start();
+  // Slider.originalLength = Slider.slides.length; 
   // Slider.next();
 })
 
 
 
-
-
-
-
-
-
-//nivoSlider
-// var nivoOpts = {
-//       effect: 'sliceDownLeft,sliceUpDown,sliceUpDownLeft,fade,boxRandom',
-//       // randomStart: true,
-//       // controlNav: false,
-//       animSpeed: 1200,
-//       pauseTime: 5000,
-
-//       beforeChange: function() {
-//         // console.log($('#slider').data('nivo:vars').currentSlide);
-//         $('.info:visible').fadeOut(1800);
-//       },
-//       afterChange: function() {
-//         showSlideInfo();
-//         if ($('#slider').data('nivo:vars').nextRandom) {
-//           // $('#slider').data('nivo:vars').nextRandom = false;
-//           var rando = Math.floor(Math.random() * $('#slider').data('nivo:vars').totalSlides);
-//           // console.log("SETTING TO RANDO: "+rando);
-//           $('#slider').data('nivo:vars').currentSlide = rando;
-//         }
-//       },
-//       afterLoad: function() {
-//         showSlideInfo();
-//       }
-
-//     };
-
-// $(function() {
-//   if ($('#slider').length) {
-//     $('#slider').nivoSlider(nivoOpts);
-//   }
-// });
-
-// function showSlideInfo() {
-//   var photo_id = $('#slider').data('nivo:vars').currentImage.data('photo-id');
-//   $('.info[data-photo-id="'+photo_id+'"]').fadeIn(150);  
-// }
 
 
 
