@@ -17,6 +17,8 @@ var Slider = {
   delayTime: 11000,
   animating: false,
   timer: null,
+  reminderInterval: 3,
+  reminderCounter: 1,
 
   next: function() {
     this.increment();
@@ -52,6 +54,9 @@ var Slider = {
           },
           function() {
             self.animating = false; 
+            if (self.reminderInterval == self.reminderCounter) {
+              $('#reminder').fadeIn(600);
+            } 
           }
         );
       });
@@ -66,6 +71,7 @@ var Slider = {
     return _.findWhere(this.slides, {_id: this.current_id});
   },
   increment: function() {
+
     if (id = this.queue.shift()) {
       this.clearAlert();
       this.current_id = id;
@@ -83,6 +89,14 @@ var Slider = {
       }
       this.current_id = this.slides[0]._id;
       // console.log(this.current_id);
+    }
+
+    if (this.reminderInterval) {
+      this.reminderCounter++;
+      if (this.reminderCounter > this.reminderInterval) {
+        $('#reminder').fadeOut(400);
+        this.reminderCounter = 1;
+      }
     }
 
   },

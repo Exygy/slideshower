@@ -154,6 +154,7 @@ function loadInstagrams(passed) {
   Instagram.tags.recent(opts);
 }
 
+// callback is called when new photos are created 
 function saveInstagramPhoto(img, callback) {
   Photo.findOne({instagram_id: img.id}).exec(function(err, photo) { 
     if (!err) { 
@@ -178,10 +179,10 @@ function saveInstagramPhoto(img, callback) {
           else console.log('saved. ' + photo.instagram_id);
         });
 
-      }
-      //TODO: only does this for new ones!
-      if (photo && callback) {
-        callback(photo);
+        //only does this for new ones
+        if (photo && callback) {
+          callback(photo);
+        }
       }
 
 

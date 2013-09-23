@@ -9,6 +9,11 @@ replace block content
     i.icon-camera-retro.icon-2x
     span.text New photo coming up!
 
+  #reminder
+    i.icon-instagram.icon-large
+    |  
+    != "To see your photos appear up here, post them to Instagram with the tag <span class='hashtag'>#kenzanddave</span>"
+
   script(type='text/javascript')
     != "Slider.slides = "+JSON.stringify(photos)+";"
 
