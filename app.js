@@ -206,29 +206,35 @@ app.listen(app.get('port'), function(){
 
 
 // -- test 
-app.get('/test', function(req, res) {
-  var request = require('request');
-  var ig_json = [
-    {
-        "subscription_id": "1",
-        "object": "user",
-        "object_id": "490213874736622185_11302361",
-        "changed_aspect": "media",
-        "time": 1297286541
-    }
-  ];
+// app.get('/test', function(req, res) {
+//   var request = require('request');
+//   var ig_json = [
+//     {
+//         "subscription_id": "1",
+//         "object": "user",
+//         "object_id": "490213874736622185_11302361",
+//         "changed_aspect": "media",
+//         "time": 1297286541
+//     }
+//   ];
 
-  request.post({
-    url: 'http://localhost:3000/live_update',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Hub-Signature': 'deepdoop'
-    },
-    body: JSON.stringify(ig_json)
-  }, function(error, response, body){
-    //
-    console.log(body);
-  });
+//   request.post({
+//     url: 'http://localhost:3000/live_update',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'X-Hub-Signature': 'deepdoop'
+//     },
+//     body: JSON.stringify(ig_json)
+//   }, function(error, response, body){
+//     //
+//     console.log(body);
+//   });
 
-  res.send('done testing.');
-});
+//   res.send('done testing.');
+// });
+
+// app.get('/fake', function(req, res) {
+//   var photo = {"instagram_id":"123xxx123","url":"http://distilleryimage0.s3.amazonaws.com/ab0595660cfe11e2a84922000a1e8bad_7.jpg","created_time":"1349229870","caption":"#kenzanddave","_id":"522edce06696c167e9000008","__v":0,"user":{"username":"sfhusker","profile_picture":"http://images.ak.instagram.com/profiles/profile_11302361_75sq_1375563596.jpg"}};  
+//   app.io.broadcast('new_photo', photo);
+//   res.send('done faking');
+// });

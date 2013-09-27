@@ -58,7 +58,7 @@ img { border: 0;}
 }
 
 .caption {
-  font-size: 28px;
+  font-size: 34px;
 }
 
 .moment {
@@ -93,12 +93,12 @@ img { border: 0;}
 }
 
 #reminder {
+  font-size: 28px;
+  line-height: 34px;
   display: none;
   position: absolute;
-  right: 10px;
-  bottom: 150px;
-  font-size: 22px;
-  line-height: 28px;
+  right: 20px;
+  bottom: 125px;
   padding: 12px;
   border-radius: 10px;
   width: 400px;

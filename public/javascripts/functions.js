@@ -1,9 +1,12 @@
 //socket.io 
 var io = io.connect()
 io.on('new_photo', function(photo){
-  console.log('WE GOTS A NEW PHOTO!');
-  console.log(photo);
-  photo.viewCount = 0; 
+  // console.log('WE GOTS A NEW PHOTO!');
+  // console.log(photo);
+
+  // we want to set this new guy to around the "low" average viewCount so that it'll show up just a little more
+  var avg = Math.floor(average(_.pluck(Slider.slides, 'viewCount')) * 0.95);
+  photo.viewCount = avg;
   Slider.add(photo);
 });
 
@@ -164,6 +167,13 @@ $(function() {
 
 
 
+function average (arr)
+{
+  return _.reduce(arr, function(memo, num)
+  {
+    return memo + num;
+  }, 0) / arr.length;
+}
 
 
 
