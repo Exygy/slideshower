@@ -28,7 +28,7 @@ var photoSchema = new mongoose.Schema({
   }
 });
 
-photoSchema.set('autoIndex', false); // F it y not
+// photoSchema.set('autoIndex', false); // F it y not
 photoSchema.index({api_id: 1, api_type: 1})
 
 var Photo = mongoose.model('Photo', photoSchema);
