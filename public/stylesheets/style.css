@@ -22,11 +22,7 @@ img { border: 0;}
   left: 0;
   width: 100%;
   background: #000;
-  margin: 24px;
-/*  margin: 10px;
-  border-radius: 10px;
-  box-shadow: 1px 1px 14px 2px #000;
-*/  
+  /*margin: 24px;*/
 }
 #slider .current {
   z-index: 2;
@@ -35,19 +31,20 @@ img { border: 0;}
 
 /* .slide */ 
 .photo {
-  border-radius: 10px; /* 0 0 10px;*/
+  /*border-radius: 10px;*/
   float: left;
   width: 60%;
 }
 
 .info {
   float: left;
-  margin-left: 36px;
+  margin: 24px 24px 24px 36px;
   width: 30%;
 }
 
 .profile_picture {
   width: 40%;
+  max-width: 100px;
 }
 
 .username {

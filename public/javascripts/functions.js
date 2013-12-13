@@ -33,6 +33,7 @@ var Slider = {
     this.animating = true; 
     blade.Runtime.loadTemplate("slide.blade", function(err, tmpl) {
       var currentSlide = self.current();
+      if (typeof(currentSlide) == 'undefined') return false; 
       currentSlide.viewCount++;
       tmpl(currentSlide, function(err, slide_html) {
         var rand = 30 + Math.floor(Math.random()*60);
@@ -78,20 +79,21 @@ var Slider = {
     if (id = this.queue.shift()) {
       this.clearAlert();
       this.current_id = id;
-    } else if (this.slides.length > 1) {
-      // randomize but also sort by least viewed 
-      // TODO: do we want to "highlight" the new additions? 
-      this.slides = _.sortBy(_.shuffle(this.slides), 'viewCount');
+    } else {
+      if (this.slides.length > 1) {
+        // randomize but also sort by least viewed 
+        // TODO: do we want to "highlight" the new additions? 
+        this.slides = _.sortBy(_.shuffle(this.slides), 'viewCount');
 
-      // just another little check in case we're about to see the same slide again 
-      var i = 0; 
-      while (i < 10 && this.slides[0]._id == this.current_id) {
-        this.slides = _.shuffle(this.slides);
-        // also just in case we get stuck for some reason 
-        i++; 
+        // just another little check in case we're about to see the same slide again 
+        var i = 0; 
+        while (i < 10 && this.slides[0]._id == this.current_id) {
+          this.slides = _.shuffle(this.slides);
+          // also just in case we get stuck for some reason 
+          i++; 
+        }
       }
       this.current_id = this.slides[0]._id;
-      // console.log(this.current_id);
     }
 
     if (this.reminderInterval) {
@@ -110,7 +112,7 @@ var Slider = {
     this.queue.push(i);
   },
   add: function(photo) {
-    if (_.findWhere(this.slides, {instagram_id: photo.instagram_id})) {
+    if (_.findWhere(this.slides, {_id: photo._id})) {
       return false; 
     }
     // preload 
@@ -176,12 +178,3 @@ function average (arr)
 }
 
 
-
-
-/*
-p = {"instagram_id":"281307455758330158_11302361","url":"http://distilleryimage6.s3.amazonaws.com/83ef3fc2ff9311e1ba4022000a1e8932_7.jpg","created_time":"1347754483","caption":"#kenzanddave","_id":"522edce06696c167e9000005","__v":0,"user":{"username":"sfhusker","profile_picture":"http://images.ak.instagram.com/profiles/profile_11302361_75sq_1375563596.jpg"}}
-Slider.add(p)
-
-$('#slider').data('nivo:vars').self.append(p)
-
-*/

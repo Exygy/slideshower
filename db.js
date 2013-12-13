@@ -17,14 +17,18 @@ mongoose.connect(mongoUri, function (err, res) {
 
 // ----- models
 var photoSchema = new mongoose.Schema({
-  instagram_id: String,
+  api_id: String,
+  api_type: String,
   url: String,
   caption: String,
-  created_time: String,
+  created_time: Number,
   user: {
     username: String,
     profile_picture: String
   }
 });
+
+photoSchema.set('autoIndex', false); // F it y not
+photoSchema.index({api_id: 1, api_type: 1})
 
 var Photo = mongoose.model('Photo', photoSchema);

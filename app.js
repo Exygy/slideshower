@@ -6,6 +6,7 @@
 
 var Instagram = require('instagram-node-lib');
 var Twit = require('twit');
+var HASHTAG = 'exygy2013';
 
 // --- mongodb
 require( './db' );
@@ -40,20 +41,32 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// development only
+// ---- API Initialization ----
+var tweetstream, TW;
 if ('development' == app.get('env')) {
+  // development only
   app.use(express.errorHandler());
-  var IG = require('./instagram_config.json'),
-    TW = require('./twitter_config.json'),
-    T = new Twit(TW);
+  var IG = require('./instagram_config.json');
+  TW = require('./twitter_config.json');
 
   // Instagram.set('client_id', IG.client_id);
   // Instagram.set('client_secret', IG.client_secret);
   Instagram.set('access_token', IG.access_token);
 
-} else if(process.env.IG_ACCESS_TOKEN) {
+
+} else if('production' == app.get('env')) {
   Instagram.set('access_token', process.env.IG_ACCESS_TOKEN);
+  TW = {
+    "consumer_key":        process.env.TW_CONSUMER_KEY,
+    "consumer_secret":     process.env.TW_CONSUMER_SECRET,
+    "access_token":        process.env.TW_ACCESS_TOKEN,
+    "access_token_secret": process.env.TW_ACCESS_TOKEN_SECRET    
+  }
 }
+
+var T = new Twit(TW);
+tweetstream = T.stream('statuses/filter', {track: '#'+HASHTAG});
+// <-- end APIs -------
 
 // for dumb ol' heroku
 app.io.configure(function() {
@@ -71,7 +84,7 @@ app.get('/live_update', function(req, res) {
   res.send(req.query['hub.challenge'])  
 });
 
-// get live updates from Instagram!!! 
+// --- get live updates from Instagram! ---
 app.post('/live_update', function(req, res) {
   console.log(' -- hitting live update -- ')
   if (!req.headers['x-hub-signature']) {
@@ -103,22 +116,28 @@ app.post('/live_update', function(req, res) {
 
 // load instagram images into DB 
 app.get('/load_into_db', function(req, res){
-  // Instagram.tags.info({ name: 'kenzanddave' });
-
   loadInstagrams();
-  res.send('!!!')
+  // loadTweets();
+  res.send('~!!!~')
 });
 
-// app.io.route('beeper', function(req) {
-// });
 
+// --- get live updates from Twitter! ---
+tweetstream.on('tweet', function(tweet) {
+  console.log(tweet.text)
+  if (tweet.entities.media) {
+    saveTwitterPhoto(tweet, function(photo) {
+      app.io.broadcast('new_photo', photo);
+    });
+  }
+});
 
 
 //------------------------
 //-- Helper funcs 
 function loadInstagrams(passed) {
   var opts = { 
-    name: 'kenzanddave',
+    name: HASHTAG,
     count: 35,
     complete: function(data, pagination){
       console.log(data.length);
@@ -159,16 +178,17 @@ function loadInstagrams(passed) {
 
 // callback is called when new photos are created 
 function saveInstagramPhoto(img, callback) {
-  Photo.findOne({instagram_id: img.id}).exec(function(err, photo) { 
+  Photo.findOne({api_id: img.id, api_type: 'instagram'}).exec(function(err, photo) { 
     if (!err) { 
       // handle result
       if (photo) {
-        console.log('found already! ' + photo.instagram_id);
+        console.log('found already! ' + photo.api_id);
       } else {
         var photo = new Photo ({
-          instagram_id: img.id,
+          api_id: img.id,
+          api_type: 'instagram',
           url: img.images.standard_resolution.url,
-          created_time: img.created_time,
+          created_time: parseInt(img.created_time),
           caption: img.caption ? img.caption.text : null,
           user: {
             username: img.user.username,
@@ -179,7 +199,7 @@ function saveInstagramPhoto(img, callback) {
         // Saving it to the database.  
         photo.save(function (err) {
           if (err) console.log ('Error on save!');
-          else console.log('saved. ' + photo.instagram_id);
+          else console.log('saved. ' + photo.api_id);
         });
 
         //only does this for new ones
@@ -188,6 +208,64 @@ function saveInstagramPhoto(img, callback) {
         }
       }
 
+
+    } 
+  });
+
+}
+
+// note: doesn't really work that well... search doesn't capture every tweet 
+// function loadTweets(passed) {
+//   T.get('search/tweets', { q: '#'+HASHTAG+' filter:images', result_type: 'recent', count: 10, include_entities: true }, function(err, reply) {
+//     //  ...
+//     if (!err) {
+//       tweets = reply.statuses;
+//       console.log(tweets.length)
+//       async.each(tweets, function(tweet) {
+//         console.log(tweet)
+//         console.log('------')
+//         // console.log(tweet.entities.media)
+//       });
+//     }
+//   })
+// }
+
+function saveTwitterPhoto(tweet, callback) {
+  tweetphoto = tweet.entities.media[0];
+  if (!tweetphoto) {
+    console.log('Error, no tweetphoto!')
+    return false; 
+  }
+  Photo.findOne({api_id: tweetphoto.id_str, api_type: 'twitter'}).exec(function(err, photo) {
+    if (!err) { 
+      // handle result
+      if (photo) {
+        console.log('found already! ' + photo.api_id);
+      } else {
+        var photo = new Photo ({
+          api_id: tweetphoto.id_str,
+          api_type: 'twitter',
+          url: tweetphoto.media_url+":large",
+          created_time: new Date(tweet.created_at).getTime()/1000,
+          caption: tweet.text,
+          user: {
+            username: "@"+tweet.user.screen_name,
+            // remove "_normal" from image to get the full version
+            profile_picture: tweet.user.profile_image_url.replace(/_normal(\.[\w]+)$/, "$1")
+          }
+        });
+
+        // Saving it to the database.  
+        photo.save(function (err) {
+          if (err) console.log ('Error on save!');
+          else console.log('saved. ' + photo.api_id);
+        });
+
+        //only does this for new ones
+        if (photo && callback) {
+          callback(photo);
+        }
+      }
 
     } 
   });
