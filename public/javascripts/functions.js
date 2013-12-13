@@ -93,7 +93,11 @@ var Slider = {
           i++; 
         }
       }
-      this.current_id = this.slides[0]._id;
+      if (this.slides.length) {
+        this.current_id = this.slides[0]._id;      
+      } else {
+        // no slides, d'oh!
+      }
     }
 
     if (this.reminderInterval) {
