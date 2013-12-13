@@ -4,7 +4,8 @@
  */
 
 
-Instagram = require('instagram-node-lib');
+var Instagram = require('instagram-node-lib');
+var Twit = require('twit');
 
 // --- mongodb
 require( './db' );
@@ -42,10 +43,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
-  var IG = require('./instagram_config.json');
+  var IG = require('./instagram_config.json'),
+    TW = require('./twitter_config.json'),
+    T = new Twit(TW);
+
   // Instagram.set('client_id', IG.client_id);
   // Instagram.set('client_secret', IG.client_secret);
   Instagram.set('access_token', IG.access_token);
+
 } else if(process.env.IG_ACCESS_TOKEN) {
   Instagram.set('access_token', process.env.IG_ACCESS_TOKEN);
 }
@@ -60,13 +65,11 @@ app.io.configure(function() {
 // ------- ROUTES -------
 app.get('/', routes.index);
 
-// shouldnt need this any more
-app.get('/live_subscribe', function(req, res) {
+// only need this once, on initial subscribe to feed (should match the live-update-getting URL)
+app.get('/live_update', function(req, res) {
   console.log(req.query);
   res.send(req.query['hub.challenge'])  
 });
-
-
 
 // get live updates from Instagram!!! 
 app.post('/live_update', function(req, res) {
